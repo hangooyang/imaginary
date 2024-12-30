@@ -30,20 +30,6 @@ func RegisterSource(sourceType ImageSourceType, factory ImageSourceFactoryFuncti
 	imageSourceFactoryMap[sourceType] = factory
 }
 
-func LoadSources(o ServerOptions) {
-	for name, factory := range imageSourceFactoryMap {
-		imageSourceMap[name] = factory(&SourceConfig{
-			Type:           name,
-			MountPath:      o.Mount,
-			AuthForwarding: o.AuthForwarding,
-			Authorization:  o.Authorization,
-			AllowedOrigins: o.AllowedOrigins,
-			MaxAllowedSize: o.MaxAllowedSize,
-			ForwardHeaders: o.ForwardHeaders,
-		})
-	}
-}
-
 func MatchSource(req *http.Request) ImageSource {
 	for _, source := range imageSourceMap {
 		if source.Matches(req) {
