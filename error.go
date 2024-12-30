@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/h2non/bimg"
 )
 
 var (
@@ -57,60 +55,4 @@ func sendErrorResponse(w http.ResponseWriter, httpStatusCode int, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpStatusCode)
 	_, _ = w.Write([]byte(fmt.Sprintf("{\"error\":\"%s\", \"status\": %d}", err.Error(), httpStatusCode)))
-}
-
-func replyWithPlaceholder(req *http.Request, w http.ResponseWriter, errCaller Error, o ServerOptions) error {
-	var err error
-	bimgOptions := bimg.Options{
-		Force:   true,
-		Crop:    true,
-		Enlarge: true,
-		Type:    ImageType(req.URL.Query().Get("type")),
-	}
-
-	bimgOptions.Width, err = parseInt(req.URL.Query().Get("width"))
-	if err != nil {
-		sendErrorResponse(w, http.StatusBadRequest, err)
-		return err
-	}
-
-	bimgOptions.Height, err = parseInt(req.URL.Query().Get("height"))
-	if err != nil {
-		sendErrorResponse(w, http.StatusBadRequest, err)
-		return err
-	}
-
-	// Resize placeholder to expected output
-	buf, err := bimg.Resize(o.PlaceholderImage, bimgOptions)
-	if err != nil {
-		sendErrorResponse(w, http.StatusBadRequest, err)
-		return err
-	}
-
-	// Use final response body image
-	image := buf
-
-	// Placeholder image response
-	w.Header().Set("Content-Type", GetImageMimeType(bimg.DetermineImageType(image)))
-	w.Header().Set("Error", string(errCaller.JSON()))
-	if o.PlaceholderStatus != 0 {
-		w.WriteHeader(o.PlaceholderStatus)
-	} else {
-		w.WriteHeader(errCaller.HTTPCode())
-	}
-	_, _ = w.Write(image)
-
-	return errCaller
-}
-
-func ErrorReply(req *http.Request, w http.ResponseWriter, err Error, o ServerOptions) {
-	// Reply with placeholder if required
-	if o.EnablePlaceholder || o.Placeholder != "" {
-		_ = replyWithPlaceholder(req, w, err, o)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(err.HTTPCode())
-	_, _ = w.Write(err.JSON())
 }
