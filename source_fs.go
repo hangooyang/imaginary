@@ -1,4 +1,4 @@
-package main
+package imaginary
 
 import (
 	"fmt"
@@ -63,7 +63,7 @@ func (s *FileSystemImageSource) read(file string) ([]byte, error) {
 
 func (s *FileSystemImageSource) getFileParam(r *http.Request) (string, error) {
 	unescaped, err := url.QueryUnescape(r.URL.Query().Get("file"))
-	if err != nil{
+	if err != nil {
 		return "", fmt.Errorf("failed to unescape file param: %w", err)
 	}
 

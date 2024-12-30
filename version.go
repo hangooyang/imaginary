@@ -1,4 +1,4 @@
-package main
+package imaginary
 
 // Version stores the current package semantic version
 var Version = "dev"

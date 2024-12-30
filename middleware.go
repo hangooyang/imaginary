@@ -1,4 +1,4 @@
-package main
+package imaginary
 
 import (
 	"crypto/hmac"
@@ -11,7 +11,6 @@ import (
 
 	"github.com/h2non/bimg"
 	"github.com/rs/cors"
-	"github.com/throttled/throttled/v2"
 	"github.com/throttled/throttled/v2/store/memstore"
 )
 
